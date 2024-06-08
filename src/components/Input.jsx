@@ -1,10 +1,64 @@
 "use client";
 
+import { app } from "@/firebase.init";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { useSession } from "next-auth/react";
+import { useEffect, useRef, useState } from "react";
 import { HiOutlinePhotograph } from "react-icons/hi";
 
 const Input = () => {
+    const [imageFileUrl, setImageFileUrl] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [imageFileUploading, setImageFileUploading] = useState(false);
+
     const { data: session } = useSession();
+
+    const imagePickRef = useRef();
+
+    const addImageToPost = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setImageFileUrl(URL.createObjectURL(file));
+        }
+    };
+
+    useEffect(() => {
+        if (selectedFile) {
+            uploadImageToStorage();
+        }
+    }, [selectedFile]);
+
+    const uploadImageToStorage = () => {
+        setImageFileUploading(true);
+        const storage = getStorage(app);
+        const fileName = new Date().getTime() + "-" + selectedFile.name;
+        const storageRef = ref(storage, fileName);
+        const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+        uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+                // Handle uploaded bytes
+                const progress =
+                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(`Upload is ${progress}% done`);
+            },
+            (error) => {
+                // Handle unsuccessful uploads
+                console.log(error);
+                setImageFileUploading(false);
+                setImageFileUrl(null);
+                setSelectedFile(null);
+            },
+            () => {
+                // Handle successful uploads on complete
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    setImageFileUrl(downloadURL);
+                    setImageFileUploading(false);
+                });
+            }
+        );
+    };
 
     if (!session) return null;
     return (
@@ -20,8 +74,25 @@ const Input = () => {
                     rows="3"
                     className="w-full border-none outline-none tracking-wide min-h-[50px] text-gray-700"
                 />
+                {selectedFile && (
+                    <img
+                        src={imageFileUrl}
+                        alt="image"
+                        className="w-full max-h-[250px] object-cover cursor-pointer"
+                    />
+                )}
                 <div className="flex items-center justify-between pt-2.5">
-                    <HiOutlinePhotograph className="h-10 w-10 p-2 text-sky-500 hover:bg-sky-100 rounded-full cursor-pointer" />
+                    <HiOutlinePhotograph
+                        onClick={() => imagePickRef.current.click()}
+                        className="h-10 w-10 p-2 text-sky-500 hover:bg-sky-100 rounded-full cursor-pointer"
+                    />
+                    <input
+                        type="file"
+                        ref={imagePickRef}
+                        accept="image/*"
+                        onChange={addImageToPost}
+                        hidden
+                    />
                     <button className="bg-blue-400 text-white px-4 py-2 rounded-full font-bold shadow-md hover:brightness-95 disabled:opacity-50">
                         Post
                     </button>
