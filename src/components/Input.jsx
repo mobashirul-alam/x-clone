@@ -17,7 +17,7 @@ const Input = () => {
             <div className="w-full divide-y divide-gray-200">
                 <textarea
                     placeholder="What's happening"
-                    rows="2"
+                    rows="3"
                     className="w-full border-none outline-none tracking-wide min-h-[50px] text-gray-700"
                 />
                 <div className="flex items-center justify-between pt-2.5">
