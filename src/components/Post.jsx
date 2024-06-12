@@ -35,7 +35,7 @@ const Post = ({ post, id }) => {
                     </Link>
                 )}
 
-                <PostIcons />
+                <PostIcons id={id} uid={post.uid} />
             </div>
         </div>
     );
