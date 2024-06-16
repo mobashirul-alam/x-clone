@@ -1,6 +1,6 @@
 "use client";
 
-import { modalState } from "@/atom/modalAtom";
+import { modalState, postIdState } from "@/atom/modalAtom";
 import { app } from "@/firebase.init";
 import {
     collection,
@@ -25,6 +25,7 @@ const PostIcons = ({ id, uid }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [likes, setLikes] = useState([]);
     const [open, setOpen] = useRecoilState(modalState);
+    const [postId, setPostId] = useRecoilState(postIdState);
     const { data: session } = useSession();
     const db = getFirestore(app);
 
@@ -78,7 +79,14 @@ const PostIcons = ({ id, uid }) => {
     return (
         <div className="flex justify-start gap-5 p-2 text-gray-500">
             <HiOutlineChat
-                onClick={() => setOpen(!open)}
+                onClick={() => {
+                    if (!session) {
+                        signIn();
+                    } else {
+                        setOpen(!open);
+                        setPostId(id);
+                    }
+                }}
                 className="h-8 w-8 cursor-pointer rounded-full transition-all duration-500 ease-in-out p-2 hover:text-sky-500 hover:bg-sky-100"
             />
             <div className="flex items-center">
