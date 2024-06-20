@@ -1,3 +1,4 @@
+import Comments from "@/components/Comments";
 import Post from "@/components/Post";
 import { app } from "@/firebase.init";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
@@ -18,6 +19,7 @@ const PostPage = async ({ params }) => {
                 <h2 className="sm:text-lg">Back</h2>
             </div>
             <Post post={data} id={data.id} />
+            <Comments id={params.id} />
         </div>
     );
 };
