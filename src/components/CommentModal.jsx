@@ -43,6 +43,7 @@ const CommentModal = () => {
 
     const handleComment = async () => {
         addDoc(collection(db, "posts", postId, "comments"), {
+            uid: session.user.uid,
             name: session.user.name,
             username: session.user.username,
             userImg: session.user.image,

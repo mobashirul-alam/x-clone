@@ -27,13 +27,22 @@ const Comments = ({ id }) => {
         );
     }, [db, id]);
 
+    useEffect(() => {
+        const unsubscribe = onSnapshot(
+            collection(db, "posts", id, "comments"),
+            (snapshot) => setComments(snapshot.docs)
+        );
+        return () => unsubscribe();
+    }, [db, id]);
+
     return (
         <div>
             {comments.map((comment) => (
                 <Comment
                     key={comment.id}
                     comment={comment.data()}
-                    id={comment.id}
+                    commentId={comment.id}
+                    postId={id}
                 />
             ))}
         </div>
